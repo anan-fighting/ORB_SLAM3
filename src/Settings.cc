@@ -337,6 +337,15 @@ namespace ORB_SLAM3 {
         if(cameraType_ == Rectified){
             b_ = readParameter<float>(fSettings,"Stereo.b",found);
             bf_ = b_ * calibration1_->getParameter(0);
+
+            // Rectified cameras have identical intrinsics for both cameras
+            // Fix: initialize calibration2_ and originalCalib2_ to avoid null pointer segfault
+            std::vector<float> vCam1Params;
+            for(size_t i = 0; i < calibration1_->size(); i++) {
+                vCam1Params.push_back(calibration1_->getParameter(i));
+            }
+            calibration2_ = new Pinhole(vCam1Params);
+            originalCalib2_ = new Pinhole(vCam1Params);
         }
         else{
             cv::Mat cvTlr = readParameter<cv::Mat>(fSettings,"Stereo.T_c1_c2",found);
